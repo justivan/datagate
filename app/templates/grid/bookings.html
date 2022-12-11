@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block content %}
+<div id="reserv-grid" class="ag-theme-alpine w-full h-full z-10"></div>
+{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/ag-grid-enterprise/dist/ag-grid-enterprise.min.noStyle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/scripts/choices.min.js"></script>
+<script src="{{ url_for('static', filename='js/components.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

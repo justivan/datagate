@@ -1,0 +1,17 @@
+{
+  "name": "datagate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tailwindcss -i ./app/static/css/src/input.css -o ./app/static/css/dist/styles.css ",
+    "watch": "npx tailwindcss -i ./app/static/css/src/input.css -o ./app/static/css/dist/styles.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.3",
+    "tailwindcss": "^3.2.4"
+  }
+}
