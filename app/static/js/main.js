@@ -70,10 +70,11 @@ function getContextMenuItems(params) {
     {
       name: "Manual Calculation",
       action: () => {
-        let id = params.node.data.id;
-        ajax("/api/booking/rate", { id: id }).then((response) => {
-          params.api.refreshServerSide();
-        });
+        ajax("/api/booking/rate", { id: params.node.data.id }).then(
+          (response) => {
+            params.api.refreshServerSide();
+          }
+        );
       },
       icon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calculator" viewBox="0 0 16 16">
       <path d="M12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z"/>
@@ -86,6 +87,23 @@ function getContextMenuItems(params) {
     "separator",
     "export",
   ];
+}
+
+function getRowHeight(params) {
+  if (params.node && params.node.detail) {
+    let offset = 60;
+    let sizes = params.api.getSizesForCurrentTheme() || {};
+    let allDetailRowHeight = params.data.rates.length * sizes.rowHeight + 65;
+    return allDetailRowHeight + (sizes.headerHeight || 0) + offset;
+  }
+}
+
+function isRowMaster(dataItem) {
+  return dataItem ? dataItem.rates.length > 0 : false;
+}
+
+function getDetailRowData(params) {
+  return params.successCallback(params.data.rates);
 }
 
 const COLUMN_TYPES = {
@@ -315,6 +333,191 @@ const RESERV_GRID_OPTS = {
   serverSideInfiniteScroll: true,
   getRowId: getRowId,
   getContextMenuItems: getContextMenuItems,
+  masterDetail: true,
+  getRowHeight: getRowHeight,
+  isRowMaster: isRowMaster,
+  detailCellRendererParams: {
+    refreshStrategy: "rows",
+    detailGridOptions: {
+      enableRangeSelection: true,
+      onCellValueChanged: (params) => {
+        ajax("/api/booking/rate/update", {
+          reserv_id: params.data.reserv_id,
+          e_date: params.data.e_date,
+          [params.colDef.field]: params.newValue ? params.newValue : 0,
+        }).then((response) => {
+          params.api.forEachNode((rowNode) => {
+            if (rowNode.data.e_date == params.data.e_date) {
+              rowNode.setData(response.data[0]);
+            }
+          });
+        });
+      },
+      columnTypes: COLUMN_TYPES,
+      columnDefs: [
+        {
+          headerName: "Date",
+          field: "e_date",
+          width: 80,
+          type: "dateColumn",
+          editable: false,
+          cellClass:
+            "text-right !border-y-0 !border-l-0 !border-r !border-gray-200",
+        },
+        {
+          headerName: "Rate",
+          field: "base_rate",
+          width: 70,
+          type: "numberColumn",
+          cellClass:
+            "text-right !border-y-0 !border-l-0 !border-r !border-gray-200",
+        },
+        {
+          headerName: "Adult Supp",
+          field: "adult_supp",
+          width: 72,
+          type: "numberColumn",
+          cellClass:
+            "text-right !border-y-0 !border-l-0 !border-r !border-gray-200",
+        },
+        {
+          headerName: "Child Supp",
+          field: "child_supp",
+          width: 70,
+          type: "numberColumn",
+          cellClass:
+            "text-right !border-y-0 !border-l-0 !border-r !border-gray-200",
+        },
+        {
+          headerName: "Adult Meal",
+          field: "adult_meal",
+          width: 70,
+          type: "numberColumn",
+          cellClass:
+            "text-right !border-y-0 !border-l-0 !border-r !border-gray-200",
+        },
+        {
+          headerName: "Child Meal",
+          field: "child_meal",
+          width: 70,
+          type: "numberColumn",
+          cellClass:
+            "text-right !border-y-0 !border-l-0 !border-r !border-gray-200",
+        },
+        {
+          headerName: "Peak Supp",
+          field: "peak_supp",
+          width: 70,
+          type: "numberColumn",
+          cellClass:
+            "text-right !border-y-0 !border-l-0 !border-r !border-gray-200",
+        },
+        {
+          field: "extras",
+          width: 70,
+          type: "numberColumn",
+          cellClass:
+            "text-right !border-y-0 !border-l-0 !border-r !border-gray-200",
+        },
+        {
+          headerName: "Discount",
+          headerClass: "!bg-gray-200",
+          children: [
+            {
+              headerName: "Base Rate",
+              field: "base_rate_disc",
+              width: 75,
+              headerClass: "!bg-gray-200",
+              cellClass:
+                "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
+            },
+            {
+              headerName: "Adult Supp",
+              field: "adult_supp_disc",
+              width: 75,
+              headerClass: "!bg-gray-200",
+              cellClass:
+                "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
+            },
+            {
+              headerName: "Child Supp",
+              field: "child_supp_disc",
+              width: 75,
+              headerClass: "!bg-gray-200",
+              cellClass:
+                "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
+            },
+            {
+              headerName: "Meal Supp",
+              field: "meal_disc",
+              width: 70,
+              headerClass: "!bg-gray-200",
+              cellClass:
+                "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
+            },
+            {
+              headerName: "Peak Supp",
+              field: "peak_supp_disc",
+              width: 70,
+              headerClass: "!bg-gray-200",
+              cellClass:
+                "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
+            },
+            {
+              headerName: "Extras",
+              field: "extras_disc",
+              width: 70,
+              headerClass: "!bg-gray-200",
+              cellClass:
+                "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
+            },
+          ],
+        },
+        {
+          headerName: "Markup",
+          field: "mark_up",
+          width: 70,
+          type: "numberColumn",
+          cellClass:
+            "text-right !border-y-0 !border-l-0 !border-r !border-gray-200",
+        },
+        {
+          headerName: "PurchaseID",
+          field: "gwg_purchase_id",
+          cellClass:
+            "text-right !border-y-0 !border-l-0 !border-r !border-gray-200",
+          width: 80,
+        },
+        {
+          headerName: "PurchaseCode",
+          field: "gwg_purchase_code",
+          cellClass: "!border-y-0 !border-l-0 !border-r !border-gray-200",
+          width: 242,
+        },
+        {
+          headerName: "SalesID",
+          field: "gwg_sales_id",
+          cellClass:
+            "text-right !border-y-0 !border-l-0 !border-r !border-gray-200",
+          width: 80,
+        },
+        {
+          headerName: "SalesCode",
+          field: "gwg_sales_code",
+          cellClass: "!border-y-0 !border-l-0 !border-r !border-gray-200",
+          width: 241,
+        },
+      ],
+      defaultColDef: {
+        editable: true,
+        filter: false,
+        sort: false,
+        suppressMenu: true,
+        wrapHeaderText: true,
+      },
+    },
+    getDetailRowData: getDetailRowData,
+  },
 };
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -1,8 +1,22 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from datetime import datetime
+from sqlalchemy.sql import expression
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.types import DateTime
 from sqlalchemy import text
 from app import db, login
+from app.utils import safe_div
+
+
+class utcnow(expression.FunctionElement):
+    type = DateTime()
+    inherit_cache = True
+
+
+@compiles(utcnow, 'postgresql')
+def pg_utcnow(element, compiler, **kw):
+    return "TIMEZONE('utc', CURRENT_TIMESTAMP)"
 
 
 class User(UserMixin, db.Model):
@@ -10,7 +24,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    last_seen = db.Column(db.DateTime, server_default=utcnow())
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -54,9 +68,9 @@ class Booking(db.Model):
     gwg_sales_id = db.Column(db.Integer, nullable=False)
     gwg_sales_name = db.Column(db.String(225), nullable=False)
     gwg_sales_code = db.Column(db.String(225), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, server_default=utcnow())
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+        db.DateTime, server_default=utcnow(), onupdate=utcnow())
     updated_by = db.Column(db.Integer, db.ForeignKey(
         'user.id'), server_default=text('1'))
     operator_id = db.Column(db.Integer, db.ForeignKey(
@@ -132,7 +146,26 @@ class BookingRate(db.Model):
     @property
     def to_dict(self):
         return {
-            c.name: getattr(self, c.name) for c in self.__table__.columns
+            'reserv_id': self.reserv_id,
+            'e_date': self.e_date,
+            'base_rate': self.base_rate,
+            'adult_supp': self.adult_supp,
+            'child_supp': self.child_supp,
+            'adult_meal': self.adult_meal,
+            'child_meal': self.child_meal,
+            'peak_supp': self.peak_supp,
+            'extras': self.extras,
+            'base_rate_disc': f'{(safe_div(self.base_rate_disc, self.base_rate) / 100):.0%}',
+            'adult_supp_disc': f'{(safe_div(self.adult_supp_disc, self.adult_supp) / 100):.0%}',
+            'child_supp_disc': f'{(safe_div(self.child_supp_disc, self.child_supp) / 100):.0%}',
+            'meal_disc': f'{(safe_div(self.meal_disc, (self.adult_meal + self.child_meal)) / 100):.0%}',
+            'peak_supp_disc': f'{(safe_div(self.peak_supp_disc, self.peak_supp) / 100):.0%}',
+            'extras_disc': f'{(safe_div(self.extras_disc, self.extras) / 100):.0%}',
+            'mark_up': self.mark_up,
+            'gwg_purchase_id': self.gwg_purchase_id,
+            'gwg_purchase_code': self.gwg_purchase_code,
+            'gwg_sales_id': self.gwg_sales_id,
+            'gwg_sales_code': self.gwg_sales_code
         }
 
 
@@ -169,7 +202,8 @@ class Hotel(db.Model):
     name = db.Column(db.String(120), unique=True, nullable=False)
     country = db.Column(db.String(2), nullable=False)
     state = db.Column(db.String(20), nullable=False)
-    purchase_manager_id = db.Column(db.String(2), db.ForeignKey('purchase_manager.id'))
+    purchase_manager_id = db.Column(
+        db.String(2), db.ForeignKey('purchase_manager.id'))
     bookings = db.relationship('Booking', backref='hotel', lazy=True)
     mapping = db.relationship('HotelMapping', backref='hotel', lazy=True)
 
