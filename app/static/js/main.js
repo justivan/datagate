@@ -421,6 +421,7 @@ const RESERV_GRID_OPTS = {
         },
         {
           headerName: "Discount",
+          // headerGroupComponent: DiscountHeaderGroup,
           headerClass: "!bg-gray-200",
           children: [
             {
@@ -429,7 +430,7 @@ const RESERV_GRID_OPTS = {
               width: 75,
               headerClass: "!bg-gray-200",
               cellClass:
-                "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
+                "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200 after:content-['%']",
             },
             {
               headerName: "Adult Supp",
@@ -472,6 +473,13 @@ const RESERV_GRID_OPTS = {
                 "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
             },
           ],
+        },
+        {
+          field: "total",
+          width: 70,
+          type: "numberColumn",
+          cellClass:
+            "text-right !border-y-0 !border-l-0 !border-r !border-gray-200 font-bold",
         },
         {
           headerName: "Markup",

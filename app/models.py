@@ -4,6 +4,7 @@ from datetime import datetime
 from sqlalchemy.sql import expression
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.types import DateTime
+from sqlalchemy.orm import column_property
 from sqlalchemy import text
 from app import db, login
 from app.utils import safe_div
@@ -143,6 +144,22 @@ class BookingRate(db.Model):
     gwg_sales_id = db.Column(db.Integer, server_default=text("0"))
     gwg_sales_code = db.Column(db.String(225))
 
+    total = column_property(
+        base_rate +
+        adult_supp +
+        child_supp +
+        adult_meal +
+        child_meal +
+        peak_supp +
+        extras +
+        base_rate_disc +
+        adult_supp_disc +
+        child_supp_disc +
+        meal_disc +
+        peak_supp_disc +
+        extras_disc
+    )
+
     @property
     def to_dict(self):
         return {
@@ -155,17 +172,18 @@ class BookingRate(db.Model):
             'child_meal': self.child_meal,
             'peak_supp': self.peak_supp,
             'extras': self.extras,
-            'base_rate_disc': f'{(safe_div(self.base_rate_disc, self.base_rate) / 100):.0%}',
-            'adult_supp_disc': f'{(safe_div(self.adult_supp_disc, self.adult_supp) / 100):.0%}',
-            'child_supp_disc': f'{(safe_div(self.child_supp_disc, self.child_supp) / 100):.0%}',
-            'meal_disc': f'{(safe_div(self.meal_disc, (self.adult_meal + self.child_meal)) / 100):.0%}',
-            'peak_supp_disc': f'{(safe_div(self.peak_supp_disc, self.peak_supp) / 100):.0%}',
-            'extras_disc': f'{(safe_div(self.extras_disc, self.extras) / 100):.0%}',
+            'base_rate_disc': safe_div(self.base_rate_disc, self.base_rate),
+            'adult_supp_disc': safe_div(self.adult_supp_disc, self.adult_supp),
+            'child_supp_disc': safe_div(self.child_supp_disc, self.child_supp),
+            'meal_disc': safe_div(self.meal_disc, (self.adult_meal + self.child_meal)),
+            'peak_supp_disc': safe_div(self.peak_supp_disc, self.peak_supp),
+            'extras_disc': safe_div(self.extras_disc, self.extras),
             'mark_up': self.mark_up,
             'gwg_purchase_id': self.gwg_purchase_id,
             'gwg_purchase_code': self.gwg_purchase_code,
             'gwg_sales_id': self.gwg_sales_id,
-            'gwg_sales_code': self.gwg_sales_code
+            'gwg_sales_code': self.gwg_sales_code,
+            'total': self.total
         }
 
 

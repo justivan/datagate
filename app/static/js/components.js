@@ -48,3 +48,23 @@ class CustomSelect {
     return true;
   }
 }
+
+class DiscountHeaderGroup {
+  init(params) {
+    this.params = params;
+    this.eGui = document.createElement("div");
+    this.eGui.className = "flex h-full w-full shadow-xl relative justify-center items-center";
+    this.eGui.innerHTML = `
+      ${this.params.displayName}
+      <div>
+      <input type="number" name="discount" id="discount" class="block w-full flex-1 rounded-none border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-xs" placeholder="www.example.com">
+      </div>
+    `;
+  }
+
+  getGui() {
+    return this.eGui;
+  }
+
+  destroy() {}
+}

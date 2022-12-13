@@ -3,7 +3,7 @@ from app.models import User, Booking, Hotel, Operator, Status, BookingRate
 from app.api import api
 from app import db
 from app.api.utils import build_filter, get_dates, set_discount
-
+from sqlalchemy import update
 
 @api.post('/booking')
 def api_booking():
@@ -65,11 +65,12 @@ def api_rate_update():
                  'child_supp_disc', 'meal_disc', 'peak_supp_disc', 'extras_disc']
 
     for field in BookingRate.__table__.columns.keys():
-        if field in data and (field != 'id' or field != 'reserv_id' or field != 'e_date'):
+        if field in data and field != 'reserv_id' and field != 'e_date':
             if field in discounts:
-                set_discount(query, field, data[field])
+                pass
             else:
-                setattr(query, field, data[field])
+                col = getattr(BookingRate, field)
+                query.update({col: data[field]}, synchronize_session=False)
 
     db.session.commit()
 
