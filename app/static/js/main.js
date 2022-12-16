@@ -106,6 +106,19 @@ function getDetailRowData(params) {
   return params.successCallback(params.data.rates);
 }
 
+function detailGridUpdate(params) {
+  ajax("/api/booking/rate/update", {
+    reserv_id: params.data.reserv_id,
+    e_date: params.data.e_date,
+    [params.colDef.field]: params.newValue ? params.newValue : 0,
+  }).then((response) => {
+    params.api.forEachNode((rowNode) => {
+      if (rowNode.data.e_date == params.data.e_date) {
+        rowNode.setData(response.data[0]);
+      }
+    });
+  });
+}
 const COLUMN_TYPES = {
   dateColumn: {
     valueFormatter: (params) => {
@@ -337,22 +350,11 @@ const RESERV_GRID_OPTS = {
   getRowHeight: getRowHeight,
   isRowMaster: isRowMaster,
   detailCellRendererParams: {
+    getDetailRowData: getDetailRowData,
     refreshStrategy: "rows",
     detailGridOptions: {
       enableRangeSelection: true,
-      onCellValueChanged: (params) => {
-        ajax("/api/booking/rate/update", {
-          reserv_id: params.data.reserv_id,
-          e_date: params.data.e_date,
-          [params.colDef.field]: params.newValue ? params.newValue : 0,
-        }).then((response) => {
-          params.api.forEachNode((rowNode) => {
-            if (rowNode.data.e_date == params.data.e_date) {
-              rowNode.setData(response.data[0]);
-            }
-          });
-        });
-      },
+      onCellValueChanged: detailGridUpdate,
       columnTypes: COLUMN_TYPES,
       columnDefs: [
         {
@@ -369,6 +371,7 @@ const RESERV_GRID_OPTS = {
           field: "base_rate",
           width: 70,
           type: "numberColumn",
+          editable: true,
           cellClass:
             "text-right !border-y-0 !border-l-0 !border-r !border-gray-200",
         },
@@ -420,13 +423,13 @@ const RESERV_GRID_OPTS = {
             "text-right !border-y-0 !border-l-0 !border-r !border-gray-200",
         },
         {
-          headerName: "Discount",
+          headerName: "",
           // headerGroupComponent: DiscountHeaderGroup,
-          headerClass: "!bg-gray-200",
+          headerClass: "!bg-gray-200 justify-center",
           children: [
             {
-              headerName: "Base Rate",
-              field: "base_rate_disc",
+              headerName: "Discount",
+              field: "discount_pct",
               width: 75,
               headerClass: "!bg-gray-200",
               cellClass:
@@ -434,43 +437,64 @@ const RESERV_GRID_OPTS = {
             },
             {
               headerName: "Adult Supp",
-              field: "adult_supp_disc",
+              field: "adult_supp_discount",
               width: 75,
               headerClass: "!bg-gray-200",
               cellClass:
                 "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
+              cellRenderer: CheckboxRenderer,
+              cellRendererParams: { discount_type: ["adult_supp"] },
             },
             {
               headerName: "Child Supp",
-              field: "child_supp_disc",
+              field: "child_supp_discount",
               width: 75,
               headerClass: "!bg-gray-200",
               cellClass:
                 "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
+              cellRenderer: CheckboxRenderer,
+              cellRendererParams: { rate_type: ["child_supp"] },
+              suppressClickEdit: true,
             },
             {
-              headerName: "Meal Supp",
-              field: "meal_disc",
+              headerName: "Adult Meal",
+              field: "adult_meal_discount",
               width: 70,
               headerClass: "!bg-gray-200",
               cellClass:
                 "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
+              cellRenderer: CheckboxRenderer,
+              cellRendererParams: { rate_type: ["adult_meal"] },
+            },
+            {
+              headerName: "Child Meal",
+              field: "child_meal_discount",
+              width: 70,
+              headerClass: "!bg-gray-200",
+              cellClass:
+                "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
+              cellRenderer: CheckboxRenderer,
+              cellRendererParams: { rate_type: ["child_meal"] },
             },
             {
               headerName: "Peak Supp",
-              field: "peak_supp_disc",
+              field: "peak_supp_discount",
               width: 70,
               headerClass: "!bg-gray-200",
               cellClass:
                 "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
+              cellRenderer: CheckboxRenderer,
+              cellRendererParams: { rate_type: ["peak_supp"] },
             },
             {
               headerName: "Extras",
-              field: "extras_disc",
+              field: "extras_discount",
               width: 70,
               headerClass: "!bg-gray-200",
               cellClass:
                 "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
+              cellRenderer: CheckboxRenderer,
+              cellRendererParams: { rate_type: ["extras"] },
             },
           ],
         },
@@ -500,7 +524,7 @@ const RESERV_GRID_OPTS = {
           headerName: "PurchaseCode",
           field: "gwg_purchase_code",
           cellClass: "!border-y-0 !border-l-0 !border-r !border-gray-200",
-          width: 242,
+          flex: 1,
         },
         {
           headerName: "SalesID",
@@ -513,7 +537,7 @@ const RESERV_GRID_OPTS = {
           headerName: "SalesCode",
           field: "gwg_sales_code",
           cellClass: "!border-y-0 !border-l-0 !border-r !border-gray-200",
-          width: 241,
+          flex: 1,
         },
       ],
       defaultColDef: {
@@ -521,10 +545,10 @@ const RESERV_GRID_OPTS = {
         filter: false,
         sort: false,
         suppressMenu: true,
+        suppressMovable: true,
         wrapHeaderText: true,
       },
     },
-    getDetailRowData: getDetailRowData,
   },
 };
 

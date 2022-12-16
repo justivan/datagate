@@ -5,6 +5,7 @@ from app import db
 from app.api.utils import build_filter, get_dates, set_discount
 from sqlalchemy import update
 
+
 @api.post('/booking')
 def api_booking():
     query = Booking.query.join(Hotel)
@@ -66,11 +67,33 @@ def api_rate_update():
 
     for field in BookingRate.__table__.columns.keys():
         if field in data and field != 'reserv_id' and field != 'e_date':
-            if field in discounts:
-                pass
+            if field == 'discount_pct':
+                
+                setattr(query, field, data[field])
+                data[field] = float(data[field]) / -100
+
+                if query.base_rate_discount != 0:
+                    query.base_rate_discount = query.base_rate * data[field]
+
+                if query.adult_supp_discount != 0:
+                    query.adult_supp_discount = query.adult_supp * data[field]
+
+                if query.child_supp_discount != 0:
+                    query.child_supp_discount = query.child_supp * data[field]
+
+                if query.adult_meal_discount != 0:
+                    query.adult_meal_discount = query.adult_meal * data[field]
+
+                if query.child_meal_discount != 0:
+                    query.child_meal_discount = query.child_meal * data[field]
+
+                if query.peak_supp_discount != 0:
+                    query.peak_supp_discount = query.peak_supp * data[field]
+
+                if query.extras_discount != 0:
+                    query.extras_discount = query.extras * data[field]
             else:
-                col = getattr(BookingRate, field)
-                query.update({col: data[field]}, synchronize_session=False)
+                setattr(query, field, data[field])
 
     db.session.commit()
 

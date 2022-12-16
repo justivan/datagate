@@ -132,12 +132,14 @@ class BookingRate(db.Model):
     child_meal = db.Column(db.Float(), server_default=text("0"))
     peak_supp = db.Column(db.Float(), server_default=text("0"))
     extras = db.Column(db.Float(), server_default=text("0"))
-    base_rate_disc = db.Column(db.Float(), server_default=text("0"))
-    adult_supp_disc = db.Column(db.Float(), server_default=text("0"))
-    child_supp_disc = db.Column(db.Float(), server_default=text("0"))
-    meal_disc = db.Column(db.Float(), server_default=text("0"))
-    peak_supp_disc = db.Column(db.Float(), server_default=text("0"))
-    extras_disc = db.Column(db.Float(), server_default=text("0"))
+    discount_pct = db.Column(db.Float(), server_default=text("0"))
+    base_rate_discount = db.Column(db.Float(), server_default=text("0"))
+    adult_supp_discount = db.Column(db.Float(), server_default=text("0"))
+    child_supp_discount = db.Column(db.Float(), server_default=text("0"))
+    adult_meal_discount = db.Column(db.Float(), server_default=text("0"))
+    child_meal_discount = db.Column(db.Float(), server_default=text("0"))
+    peak_supp_discount = db.Column(db.Float(), server_default=text("0"))
+    extras_discount = db.Column(db.Float(), server_default=text("0"))
     mark_up = db.Column(db.Float(), server_default=text("0"))
     gwg_purchase_id = db.Column(db.Integer, server_default=text("0"))
     gwg_purchase_code = db.Column(db.String(225))
@@ -152,12 +154,13 @@ class BookingRate(db.Model):
         child_meal +
         peak_supp +
         extras +
-        base_rate_disc +
-        adult_supp_disc +
-        child_supp_disc +
-        meal_disc +
-        peak_supp_disc +
-        extras_disc
+        base_rate_discount +
+        adult_supp_discount +
+        child_supp_discount +
+        adult_meal_discount +
+        child_meal_discount +
+        peak_supp_discount +
+        extras_discount
     )
 
     @property
@@ -172,12 +175,14 @@ class BookingRate(db.Model):
             'child_meal': self.child_meal,
             'peak_supp': self.peak_supp,
             'extras': self.extras,
-            'base_rate_disc': safe_div(self.base_rate_disc, self.base_rate),
-            'adult_supp_disc': safe_div(self.adult_supp_disc, self.adult_supp),
-            'child_supp_disc': safe_div(self.child_supp_disc, self.child_supp),
-            'meal_disc': safe_div(self.meal_disc, (self.adult_meal + self.child_meal)),
-            'peak_supp_disc': safe_div(self.peak_supp_disc, self.peak_supp),
-            'extras_disc': safe_div(self.extras_disc, self.extras),
+            'discount_pct': self.discount_pct,
+            'base_rate_discount': self.base_rate_discount,
+            'adult_supp_discount': self.adult_supp_discount,
+            'child_supp_discount': self.child_supp_discount,
+            'adult_meal_discount': self.adult_meal_discount,
+            'child_meal_discount': self.child_meal_discount,
+            'peak_supp_discount': self.peak_supp_discount,
+            'extras_discount': self.extras_discount,
             'mark_up': self.mark_up,
             'gwg_purchase_id': self.gwg_purchase_id,
             'gwg_purchase_code': self.gwg_purchase_code,

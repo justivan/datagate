@@ -49,17 +49,42 @@ class CustomSelect {
   }
 }
 
-class DiscountHeaderGroup {
-  init(params) {
-    this.params = params;
+class CheckboxRenderer {
+  init(agParams) {
     this.eGui = document.createElement("div");
-    this.eGui.className = "flex h-full w-full shadow-xl relative justify-center items-center";
-    this.eGui.innerHTML = `
-      ${this.params.displayName}
-      <div>
-      <input type="number" name="discount" id="discount" class="block w-full flex-1 rounded-none border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-xs" placeholder="www.example.com">
-      </div>
-    `;
+    this.eGui.className = "ag-cell-wrapper";
+
+    this.inputWrapper = document.createElement("div");
+    this.inputWrapper.className = "ag-selection-checkbox";
+
+    this.input = document.createElement("input");
+    this.input.type = "checkbox";
+    this.input.className =
+      "h-4 w-4 rounded-sm border-gray-300 text-blue-500 focus:ring-0";
+    this.input.checked = agParams.value ? true : false;
+
+    this.eGui.append(this.inputWrapper);
+    this.inputWrapper.append(this.input);
+
+    this.cellValue = document.createElement("span");
+    this.cellValue.className = "ag-cell-value";
+    this.cellValue.innerHTML = agParams.value;
+
+    this.eGui.append(this.cellValue);
+
+    this.input.onclick = () => {
+      ajax("/api/booking/rate/update", {
+        reserv_id: agParams.data.reserv_id,
+        e_date: agParams.data.e_date,
+        discount: agParams.rate_type
+      }).then((response) => {
+        agParams.api.forEachNode((rowNode) => {
+          if (rowNode.data.e_date == agParams.data.e_date) {
+            rowNode.setData(response.data[0]);
+          }
+        });
+      });
+    };
   }
 
   getGui() {
@@ -67,4 +92,61 @@ class DiscountHeaderGroup {
   }
 
   destroy() {}
+}
+
+class CheckboxEditor {
+  init(agParams) {
+    this.agParams = agParams;
+    this.eGui = document.createElement("div");
+    this.eGui.className = "ag-cell-wrapper justify-center z-100";
+
+    this.inputWrapper = document.createElement("div");
+    this.inputWrapper.className = "ag-selection-checkbox";
+
+    this.input = document.createElement("input");
+    this.input.type = "checkbox";
+    this.input.className =
+      "h-4 w-4 rounded-sm border-gray-300 text-blue-500 focus:ring-0";
+
+    this.eGui.append(this.inputWrapper);
+    this.inputWrapper.append(this.input);
+
+    this.input.ondblclick = () => {
+      console.log(this.input.checked);
+      // params.field.forEach((element) => {
+      //   console.log(params.field)
+      //   let value = this.input.checked
+      //     ? params.data[element] * (params.data.discount_pct / 100) * -1
+      //     : 0;
+      //   console.log(value);
+      //   ajax("/api/booking/rate/update", {
+      //     reserv_id: params.data.reserv_id,
+      //     e_date: params.data.e_date,
+      //     [element.concat("_discount")]: value,
+      //   }).then((response) => {
+      //     params.api.forEachNode((rowNode) => {
+      //       if (rowNode.data.e_date == params.data.e_date) {
+      //         rowNode.setData(response.data[0]);
+      //       }
+      //     });
+      //   });
+      // });
+    };
+  }
+
+  getGui() {
+    return this.eGui;
+  }
+
+  afterGuiAttached() {
+    this.eGui.focus();
+  }
+
+  getValue() {
+    return this.eGui.value;
+  }
+
+  destroy() {}
+
+  isPopup() {}
 }
