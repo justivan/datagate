@@ -3,7 +3,6 @@ from app.models import User, Booking, Hotel, Operator, Status, BookingRate
 from app.api import api
 from app import db
 from app.api.utils import build_filter, get_dates, set_discount
-from sqlalchemy import update
 
 
 @api.post('/booking')
@@ -62,43 +61,22 @@ def api_rate_update():
 
     query = BookingRate.query.get((data['reserv_id'], data['e_date']))
 
-    discounts = ['base_rate_disc', 'adult_supp_disc',
-                 'child_supp_disc', 'meal_disc', 'peak_supp_disc', 'extras_disc']
-
     for field in BookingRate.__table__.columns.keys():
         if field in data and field != 'reserv_id' and field != 'e_date':
-            if field == 'discount_pct':
-                
-                setattr(query, field, data[field])
-                data[field] = float(data[field]) / -100
+            set_discount(query, field, data)
 
-                if query.base_rate_discount != 0:
-                    query.base_rate_discount = query.base_rate * data[field]
+    #         if is_discounted:
+    #             print('yes')
+    #         else:
+    #             print('no')
 
-                if query.adult_supp_discount != 0:
-                    query.adult_supp_discount = query.adult_supp * data[field]
+    #         setattr(query, field, data[field])
+    #         set_discount(query, field, data[field])
 
-                if query.child_supp_discount != 0:
-                    query.child_supp_discount = query.child_supp * data[field]
-
-                if query.adult_meal_discount != 0:
-                    query.adult_meal_discount = query.adult_meal * data[field]
-
-                if query.child_meal_discount != 0:
-                    query.child_meal_discount = query.child_meal * data[field]
-
-                if query.peak_supp_discount != 0:
-                    query.peak_supp_discount = query.peak_supp * data[field]
-
-                if query.extras_discount != 0:
-                    query.extras_discount = query.extras * data[field]
-            else:
-                setattr(query, field, data[field])
-
-    db.session.commit()
+    # db.session.commit()
 
     return {
-        'data': [query.to_dict]
+        # 'data': [query.to_dict]
     }, 201
 
 

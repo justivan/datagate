@@ -354,7 +354,13 @@ const RESERV_GRID_OPTS = {
     refreshStrategy: "rows",
     detailGridOptions: {
       enableRangeSelection: true,
+      enableFillHandle: true,
       onCellValueChanged: detailGridUpdate,
+      onCellKeyDown: (agParams) => {
+        if(agParams.event.ctrlKey && agParams.event.keyCode == 68) {
+          console.log(agParams)
+        }
+      },
       columnTypes: COLUMN_TYPES,
       columnDefs: [
         {
@@ -443,7 +449,8 @@ const RESERV_GRID_OPTS = {
               cellClass:
                 "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
               cellRenderer: CheckboxRenderer,
-              cellRendererParams: { discount_type: ["adult_supp"] },
+              cellRendererParams: { discount_type: "adult_supp" },
+              editable: false,
             },
             {
               headerName: "Child Supp",
@@ -453,7 +460,7 @@ const RESERV_GRID_OPTS = {
               cellClass:
                 "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
               cellRenderer: CheckboxRenderer,
-              cellRendererParams: { rate_type: ["child_supp"] },
+              cellRendererParams: { discount_type: "child_supp" },
               suppressClickEdit: true,
             },
             {
@@ -464,7 +471,7 @@ const RESERV_GRID_OPTS = {
               cellClass:
                 "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
               cellRenderer: CheckboxRenderer,
-              cellRendererParams: { rate_type: ["adult_meal"] },
+              cellRendererParams: { discount_type: "adult_meal" },
             },
             {
               headerName: "Child Meal",
@@ -474,7 +481,7 @@ const RESERV_GRID_OPTS = {
               cellClass:
                 "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
               cellRenderer: CheckboxRenderer,
-              cellRendererParams: { rate_type: ["child_meal"] },
+              cellRendererParams: { discount_type: "child_meal" },
             },
             {
               headerName: "Peak Supp",
@@ -484,7 +491,7 @@ const RESERV_GRID_OPTS = {
               cellClass:
                 "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
               cellRenderer: CheckboxRenderer,
-              cellRendererParams: { rate_type: ["peak_supp"] },
+              cellRendererParams: { discount_type: "peak_supp" },
             },
             {
               headerName: "Extras",
@@ -494,7 +501,7 @@ const RESERV_GRID_OPTS = {
               cellClass:
                 "text-right !border-y-0 !border-l-0 !border-r !border-gray-300 bg-gray-200",
               cellRenderer: CheckboxRenderer,
-              cellRendererParams: { rate_type: ["extras"] },
+              cellRendererParams: { discount_type: "extras" },
             },
           ],
         },

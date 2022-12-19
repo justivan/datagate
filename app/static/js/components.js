@@ -63,6 +63,11 @@ class CheckboxRenderer {
       "h-4 w-4 rounded-sm border-gray-300 text-blue-500 focus:ring-0";
     this.input.checked = agParams.value ? true : false;
 
+    if (agParams.data.discount_pct == 0) {
+      this.input.disabled = true;
+      this.input.className = "hidden";
+    }
+
     this.eGui.append(this.inputWrapper);
     this.inputWrapper.append(this.input);
 
@@ -76,7 +81,7 @@ class CheckboxRenderer {
       ajax("/api/booking/rate/update", {
         reserv_id: agParams.data.reserv_id,
         e_date: agParams.data.e_date,
-        discount: agParams.rate_type
+        [agParams.colDef.field]: this.input.checked,
       }).then((response) => {
         agParams.api.forEachNode((rowNode) => {
           if (rowNode.data.e_date == agParams.data.e_date) {
