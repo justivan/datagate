@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    image: datagate_local
+    container_name: datagate_local
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    env_file:
+      - .env

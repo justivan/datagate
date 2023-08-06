@@ -1,0 +1,40 @@
+{% extends 'admin/change_form.html' %}
+
+{% block extrahead %}
+{{ block.super }}
+<script type="text/javascript">
+  (function () {
+    // Function to update the area field based on lat and lng
+    function updateAreaField() {
+      let latInput = document.getElementById("id_latitude");
+      let lngInput = document.getElementById("id_longitude");
+      let areaInput = document.getElementById("id_area");
+      let areaAutoComplete = document.getElementById("id_area-autocomplete");
+
+      let lat = parseFloat(latInput.value);
+      let lng = parseFloat(lngInput.value);
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        // AJAX request to retrieve the area based on lat and lng
+        fetch("/api/area/?lat=" + lat + "&lng=" + lng)
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (data) {
+            areaInput.value = data[0].id;
+            areaAutoComplete.value = data[0].name;
+          });
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      // Update area field on lat and lng change
+      let latInput = document.getElementById("id_latitude");
+      let lngInput = document.getElementById("id_longitude");
+
+      latInput.addEventListener("change", updateAreaField);
+      lngInput.addEventListener("change", updateAreaField);
+    });
+  })();
+</script>
+{% endblock %}

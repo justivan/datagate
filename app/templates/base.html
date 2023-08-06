@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full" x-data="{ mode: '' }" x-init="mode = localStorage.getItem('themeMode') || 'light'; $watch('mode', value => localStorage.setItem('themeMode', value));" :class="{ 'dark': mode === 'dark', '': mode === 'light' }">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Datagate UI</title>
+
+    <link rel="icon" href="{% static 'img/favicon.svg' %}" type="svg+xml" />
+    <link rel="stylesheet" href="{%static 'css/datagate-ui.css' %}" />
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.1/dist/cdn.min.js"></script>
+  </head>
+  <body class="h-full bg-white pt-15 antialiased dark:bg-gray-900">
+    {% include 'components/navbar.html' %}
+    <div class="flex h-full flex-col bg-gray-50 p-3 antialiased dark:bg-gray-900 sm:p-5">
+      <div class="relative h-full overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-sm">
+        {% block content %} {% endblock content %}
+      </div>
+    </div>
+  </body>
+</html>

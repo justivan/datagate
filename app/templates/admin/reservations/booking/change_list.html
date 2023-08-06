@@ -1,0 +1,60 @@
+{% extends 'admin/change_list.html' %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+  .blocking-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border-top: 4px solid #ffffff;
+    border-right: 4px solid transparent;
+    animation: spinner-rotate 1s linear infinite;
+  }
+
+  @keyframes spinner-rotate {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+
+<script>
+  function enableOverlay() {
+    var overlay = document.createElement("div");
+    overlay.className = "blocking-overlay";
+
+    var spinner = document.createElement("div");
+    spinner.className = "spinner";
+
+    overlay.appendChild(spinner);
+    document.body.appendChild(overlay);
+  }
+</script>
+{% endblock %}
+
+{% block object-tools-items %}
+<li>
+  <form id="import-form" action="import/gwg/" method="POST">
+    {% csrf_token %}
+    <li><a class="grp-state-focus" href="#" onclick="event.preventDefault(); document.getElementById('import-form').submit(); enableOverlay();">GWG Sync</a></li>
+  </form>
+</li>
+{{ block.super }}
+{% endblock %}

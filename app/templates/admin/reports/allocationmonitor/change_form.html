@@ -1,0 +1,35 @@
+{% extends 'admin/change_form.html' %} {% block extrahead %} {{ block.super }}
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function () {
+    let hotelDropdown = document.querySelector("#id_hotel");
+    let roomDropdown = document.querySelector("#id_room");
+
+    hotelDropdown.addEventListener("change", function () {
+      let hotel = this.value;
+
+      // Fetch rooms for the selected hotel using Fetch API
+      fetch("/api/hotels/rooms/?hotel=" + hotel)
+        .then(function (response) {
+          if (response.ok) {
+            return response.json();
+          } else {
+            throw new Error("Error retrieving rooms");
+          }
+        })
+        .then(function (data) {
+          // Update the room dropdown with the retrieved options
+          roomDropdown.innerHTML = ""; // Clear existing options
+          data.forEach(function (room) {
+            let option = document.createElement("option");
+            option.value = room.id;
+            option.text = room.name;
+            roomDropdown.appendChild(option);
+          });
+        })
+        .catch(function (error) {
+          console.error(error);
+        });
+    });
+  });
+</script>
+{% endblock %}
