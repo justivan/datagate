@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from accommodation.models import Hotel, HotelRoom
+from clients.models import Operator
 
 
 class HotelMapping(models.Model):
@@ -35,3 +36,16 @@ class HotelRoomMapping(models.Model):
 
     def __str__(self):
         return f"{self.room_type}"
+
+
+class OperatorMapping(models.Model):
+    operator = models.ForeignKey(Operator, on_delete=models.PROTECT)
+    external_id = models.IntegerField(_("GWG Operator ID"), unique=True)
+    external_name = models.CharField(_("GWG Operator Name"), unique=True, max_length=120)
+
+    class Meta:
+        db_table = "mapping_operator"
+        verbose_name_plural = "operator mapping"
+
+    def __str__(self):
+        return f"{self.external_id} - {self.external_name}"
