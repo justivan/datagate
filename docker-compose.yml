@@ -1,0 +1,48 @@
+version: '3'
+
+volumes:
+  production_postgres_data: {}
+  production_postgres_data_backups: {}
+  production_django_media: {}
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./docker/django/Dockerfile
+    image: datagate_production_django
+    restart: always
+    volumes:
+      - production_django_media:/vol/www
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    command: /start
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./docker/postgres/Dockerfile
+    image: datagate_production_postgres
+    restart: always
+    volumes:
+      - production_postgres_data:/var/lib/postgresql/data
+      - production_postgres_data_backups:/backups
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+
+  nginx:
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    image: datagate_production_nginx
+    restart: always
+    depends_on:
+      - django
+    ports:
+      - 80:80
+    volumes:
+      - production_django_media:/vol/static

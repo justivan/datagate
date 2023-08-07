@@ -1,0 +1,10 @@
+# Ignore development files
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+*.swo
+
+# Ignore database files
+app/db.sqlite3
