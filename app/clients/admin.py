@@ -20,6 +20,7 @@ class OperatorAdmin(admin.ModelAdmin):
         "short_name",
         "category",
         "operator_group",
+        "allocation_group",
     )
     list_filter = ("name", "category")
     search_fields = ("name",)

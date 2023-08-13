@@ -30,6 +30,7 @@ class HotelRoomMapping(models.Model):
     room_code = models.CharField(_("GWG Room Code"), max_length=50)
 
     class Meta:
+        ordering = ("hotel_room__hotel__name", "hotel_room")
         db_table = "mapping_hotel_room"
         verbose_name_plural = "room mapping"
         unique_together = (("hotel_room", "room_type"),)
@@ -44,6 +45,7 @@ class OperatorMapping(models.Model):
     external_name = models.CharField(_("GWG Operator Name"), unique=True, max_length=120)
 
     class Meta:
+        ordering = ("external_name",)
         db_table = "mapping_operator"
         verbose_name_plural = "operator mapping"
 

@@ -41,8 +41,8 @@ LOCAL_APPS = [
     "accounts",
     "clients",
     "definitions",
-    # "reports",
-    # "reservations",
+    "reports",
+    "reservations",
     "mapping",
     "scripts",
 ]

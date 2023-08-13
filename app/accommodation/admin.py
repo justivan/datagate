@@ -11,12 +11,12 @@ from .models import (
 )
 from mapping.models import HotelMapping, HotelRoomMapping
 
-# from reports.models import RoomInventory
+from reports.models import RoomInventory
 
 
-# class RoomInventoryInline(admin.TabularInline):
-#     model = RoomInventory
-#     extra = 0
+class RoomInventoryInline(admin.TabularInline):
+    model = RoomInventory
+    extra = 0
 
 
 class HotelMappingInline(admin.TabularInline):
@@ -29,9 +29,9 @@ class HotelRoomInline(admin.TabularInline):
     extra = 0
 
 
-# class HotelRoomMappingInline(admin.TabularInline):
-#     model = HotelRoomMapping
-#     extra = 0
+class HotelRoomMappingInline(admin.TabularInline):
+    model = HotelRoomMapping
+    extra = 0
 
 
 @admin.register(Hotel)
@@ -53,9 +53,9 @@ class HotelAdmin(admin.ModelAdmin):
         "created_by",
         "updated_by",
     )
-    list_filter = ("area__region__country", "status", "created_at")
+    list_filter = ("area__region__country", "status", "created_at", "chain")
     list_per_page = 20
-    search_fields = ("name", "giata")
+    search_fields = ("id", "name", "giata", "chain__name")
     inlines = (
         HotelMappingInline,
         HotelRoomInline,
@@ -131,11 +131,11 @@ class TagTypeAdmin(admin.ModelAdmin):
 
 @admin.register(HotelRoom)
 class HotelRoomAdmin(admin.ModelAdmin):
-    # inlines = (HotelRoomMappingInline, RoomInventoryInline)
-    list_display = ("name", "hotel")  # , "room_mapping")
-    search_fields = ("hotel__name",)
+    inlines = (HotelRoomMappingInline, RoomInventoryInline)
+    list_display = ("id", "name", "hotel", "room_mapping")
+    search_fields = ("hotel__name", "hotel__id")
 
-    # def room_mapping(self, obj):
-    #     mapping = HotelRoomMapping.objects.filter(hotel_room=obj)
-    #     rooms = ", ".join(f"({room.room_code}) {room.room_name}" for room in mapping)
-    #     return rooms if rooms else "-"
+    def room_mapping(self, obj):
+        mapping = HotelRoomMapping.objects.filter(hotel_room=obj)
+        rooms = ", ".join(f"({room.room_code}) {room.room_type}" for room in mapping)
+        return rooms if rooms else "-"
